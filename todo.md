@@ -37,28 +37,22 @@
 - [x] Vitest unit tests (security firewall, encryption, auth)
 - [x] Loading states, empty states, error handling
 - [x] Responsive design polish
-- [ ] Save checkpoint
+- [x] Save checkpoint
 
 ## Phase 8: GitHub
-- [ ] Create new GitHub repository (asg-nexus)
-- [ ] Push full project code
-- [ ] Write comprehensive README.md with deployment docs
-
-## Localization & Visibility
-- [ ] Translate all frontend UI text to English (Home, Personas, PersonaDetail, Chat, Feed, Graph, AppLayout)
-- [ ] Make GitHub repository public
-- [ ] Update README for English audience
-- [ ] Save checkpoint and push to GitHub
+- [x] Create new GitHub repository (asg-nexus)
+- [x] Push full project code
+- [x] Write comprehensive README.md with deployment docs
 
 ## i18n & Public Release
-- [ ] Create i18n context with language toggle (zh/en)
-- [ ] Create zh and en locale files (full coverage)
-- [ ] Integrate i18n into AppLayout (language switcher button)
-- [ ] Integrate i18n into Home page
-- [ ] Integrate i18n into Personas page
-- [ ] Integrate i18n into PersonaDetail page
-- [ ] Integrate i18n into Chat page
-- [ ] Integrate i18n into Feed page
-- [ ] Integrate i18n into Graph page
-- [ ] Make GitHub repository public
-- [ ] Push i18n changes to GitHub
+- [x] Create i18n context with language toggle (zh/en)
+- [x] Create zh and en locale files (full coverage)
+- [x] Integrate i18n into AppLayout (language switcher button)
+- [x] Integrate i18n into Home page
+- [x] Integrate i18n into Personas page
+- [x] Integrate i18n into PersonaDetail page
+- [x] Integrate i18n into Chat page
+- [x] Integrate i18n into Feed page
+- [x] Integrate i18n into Graph page
+- [x] Make GitHub repository public
+- [x] Push i18n changes to GitHub
