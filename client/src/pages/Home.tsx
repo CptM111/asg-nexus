@@ -36,7 +36,7 @@ export default function Home() {
             </div>
             <span className="font-semibold text-foreground">ASG Nexus</span>
             <Badge variant="outline" className="text-[10px] border-[oklch(0.65_0.22_285/0.4)] text-[oklch(0.75_0.15_285)] hidden sm:flex">
-              v2.1.0
+              v1.1.0
             </Badge>
           </div>
           <div className="flex items-center gap-3">

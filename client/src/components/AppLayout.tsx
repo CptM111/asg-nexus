@@ -4,7 +4,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { trpc } from "@/lib/trpc";
 import {
   Bot, GitBranch, Languages, LogIn, LogOut,
-  MessageCircle, Rss, Shield, Sparkles,
+  MessageCircle, Rss, Shield, Sparkles, Store, User,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -14,13 +14,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, logout } = useAuth();
   const [location] = useLocation();
-  const { t, toggleLocale } = useI18n();
+  const { t, locale, toggleLocale } = useI18n();
 
   const NAV_ITEMS = [
     { href: "/app/personas", icon: Bot,          label: t.nav.personas, description: t.home.features.persona.title },
     { href: "/app/chat",     icon: MessageCircle, label: t.nav.chat,     description: t.home.features.chat.title },
     { href: "/app/feed",     icon: Rss,           label: t.nav.feed,     description: t.home.features.feed.title },
     { href: "/app/graph",    icon: GitBranch,     label: t.nav.graph,    description: t.home.features.graph.title },
+    { href: "/app/marketplace", icon: Store,        label: locale === "zh" ? "分身广场" : "Marketplace", description: locale === "zh" ? "探索全网 AI 分身" : "Discover AI Personas" },
+    { href: "/app/profile",   icon: User,          label: locale === "zh" ? "个人资料" : "Profile", description: locale === "zh" ? "账户与对齐历史" : "Account & alignment history" },
   ];
 
   const logoutMutation = trpc.auth.logout.useMutation({

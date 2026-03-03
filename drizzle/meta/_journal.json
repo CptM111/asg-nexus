@@ -8,6 +8,13 @@
       "when": 1772527638272,
       "tag": "0000_sticky_wallop",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1772530820217,
+      "tag": "0001_nice_supreme_intelligence",
+      "breakpoints": true
     }
   ]
 }

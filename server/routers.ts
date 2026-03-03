@@ -31,7 +31,14 @@ import {
   updatePersona,
   getUserById,
   getMessagesByConversation,
+  updateUser,
+  getUserPersonaAlignmentHistory,
+  followPersona,
+  unfollowPersona,
+  getFollowedPersonas,
+  getPersonaFollowerCount,
 } from "./db";
+import { storagePut } from "./storage";
 import {
   chatWithPersona,
   feedbackToAlignment,
@@ -257,6 +264,18 @@ const chatRouter = router({
       return { blocked: false, messageId: msgId, conversationId: convId };
     }),
 
+  getOrCreateConversation: protectedProcedure
+    .input(z.object({ toId: z.number(), toType: z.enum(["user", "persona"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const convId = await findOrCreateConversation({
+        type: input.toType === "user" ? "user_user" : "user_persona",
+        participant1Id: ctx.user.id,
+        participant1Type: "user",
+        participant2Id: input.toId,
+        participant2Type: input.toType,
+      });
+      return { id: convId };
+    }),
   decryptMessages: protectedProcedure
     .input(z.object({ conversationId: z.number(), participant1Type: z.enum(["user", "persona"]), participant1Id: z.number(), participant2Type: z.enum(["user", "persona"]), participant2Id: z.number() }))
     .query(async ({ input }) => {
@@ -412,6 +431,57 @@ async function triggerAutoComments(postId: number, postContent: string, authorId
   return count;
 }
 
+// ─── User Profile Router ────────────────────────────────────────────────────
+// ─── Marketplace Router ────────────────────────────────────────────────────
+const marketplaceRouter = router({
+  list: publicProcedure.query(() => getPublicPersonas()),
+  myFollows: protectedProcedure.query(({ ctx }) => getFollowedPersonas(ctx.user.id)),
+  follow: protectedProcedure
+    .input(z.object({ personaId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await followPersona(ctx.user.id, input.personaId);
+      return { success: true };
+    }),
+  unfollow: protectedProcedure
+    .input(z.object({ personaId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await unfollowPersona(ctx.user.id, input.personaId);
+      return { success: true };
+    }),
+  followerCount: publicProcedure
+    .input(z.object({ personaId: z.number() }))
+    .query(({ input }) => getPersonaFollowerCount(input.personaId)),
+});
+
+const userRouter = router({
+  me: protectedProcedure.query(({ ctx }) => getUserById(ctx.user.id)),
+  alignmentHistory: protectedProcedure.query(({ ctx }) =>
+    getUserPersonaAlignmentHistory(ctx.user.id)
+  ),
+  updateProfile: protectedProcedure
+    .input(z.object({ name: z.string().min(1).max(100).optional(), bio: z.string().max(500).optional() }))
+    .mutation(async ({ ctx, input }) => {
+      await updateUser(ctx.user.id, input);
+      return { success: true };
+    }),
+  uploadAvatar: protectedProcedure
+    .input(z.object({ dataUrl: z.string().min(10) }))
+    .mutation(async ({ ctx, input }) => {
+      // Parse base64 data URL
+      const matches = input.dataUrl.match(/^data:([a-zA-Z0-9+/]+\/[a-zA-Z0-9+/]+);base64,(.+)$/);
+      if (!matches) throw new Error("Invalid image data URL");
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, "base64");
+      if (buffer.length > 5 * 1024 * 1024) throw new Error("Image too large (max 5MB)");
+      const ext = mimeType.split("/")[1] ?? "jpg";
+      const key = `avatars/user-${ctx.user.id}-${Date.now()}.${ext}`;
+      const { url } = await storagePut(key, buffer, mimeType);
+      await updateUser(ctx.user.id, { avatar: url });
+      return { url };
+    }),
+});
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -427,6 +497,8 @@ export const appRouter = router({
   chat: chatRouter,
   feed: feedRouter,
   graph: graphRouter,
+  user: userRouter,
+  marketplace: marketplaceRouter,
 });
 
 export type AppRouter = typeof appRouter;

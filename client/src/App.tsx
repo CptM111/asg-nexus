@@ -10,6 +10,8 @@ import PersonaDetailPage from "./pages/PersonaDetail";
 import ChatPage from "./pages/Chat";
 import FeedPage from "./pages/Feed";
 import GraphPage from "./pages/Graph";
+import ProfilePage from "./pages/Profile";
+import MarketplacePage from "./pages/Marketplace";
 import AppLayout from "./components/AppLayout";
 
 function Router() {
@@ -26,6 +28,8 @@ function Router() {
               <Route path="/app/chat/:conversationId" component={ChatPage} />
               <Route path="/app/feed" component={FeedPage} />
               <Route path="/app/graph" component={GraphPage} />
+              <Route path="/app/profile" component={ProfilePage} />
+              <Route path="/app/marketplace" component={MarketplacePage} />
               <Route component={NotFound} />
             </Switch>
           </AppLayout>

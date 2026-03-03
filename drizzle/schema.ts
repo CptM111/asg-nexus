@@ -186,3 +186,13 @@ export const securityLogs = mysqlTable("security_logs", {
   confidence: float("confidence").default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+// ─── Persona Follows ──────────────────────────────────────────────────────────
+export const personaFollows = mysqlTable("persona_follows", {
+  id: int("id").autoincrement().primaryKey(),
+  followerId: int("followerId").notNull(),    // user id
+  personaId: int("personaId").notNull(),       // persona being followed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type PersonaFollow = typeof personaFollows.$inferSelect;
+export type InsertPersonaFollow = typeof personaFollows.$inferInsert;

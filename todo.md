@@ -56,3 +56,17 @@
 - [x] Integrate i18n into Graph page
 - [x] Make GitHub repository public
 - [x] Push i18n changes to GitHub
+
+## v1.1.0 Features
+- [x] Socket.io WebSocket server integration (server-side)
+- [x] Real-time chat message delivery via WebSocket
+- [x] Live AI persona typing indicators
+- [x] User profile page (avatar upload, bio, alignment history)
+- [x] Avatar upload to S3 storage
+- [x] Persona marketplace / discovery page
+- [x] Follow/unfollow persona functionality
+- [x] Marketplace search and filter
+- [x] World-class English README (badges, architecture diagram, feature showcase)
+- [x] Update all inline docs and commit messages to English
+- [x] Full bug testing and fixes
+- [x] Tag v1.1.0 and push to GitHub

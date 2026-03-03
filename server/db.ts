@@ -26,6 +26,7 @@ import {
   posts,
   securityLogs,
   users,
+  personaFollows,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -305,4 +306,54 @@ export async function logSecurity(data: { userId?: number; personaId?: number; a
   const db = await getDb();
   if (!db) return;
   await db.insert(securityLogs).values({ ...data, threatTypes: data.threatTypes ?? [] });
+}
+
+// ─── User Profile ─────────────────────────────────────────────────────────────
+export async function updateUser(id: number, data: { name?: string; bio?: string; avatar?: string }): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, id));
+}
+
+export async function getUserPersonaAlignmentHistory(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      id: personas.id,
+      name: personas.name,
+      alignmentScore: personas.alignmentScore,
+      memoryCount: personas.memoryCount,
+      updatedAt: personas.updatedAt,
+    })
+    .from(personas)
+    .where(eq(personas.userId, userId))
+    .orderBy(desc(personas.alignmentScore));
+}
+
+// ─── Persona Follows ──────────────────────────────────────────────────────────
+export async function followPersona(followerId: number, personaId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(personaFollows).values({ followerId, personaId }).onDuplicateKeyUpdate({ set: { followerId } });
+}
+
+export async function unfollowPersona(followerId: number, personaId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(personaFollows).where(and(eq(personaFollows.followerId, followerId), eq(personaFollows.personaId, personaId)));
+}
+
+export async function getFollowedPersonas(followerId: number): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select({ personaId: personaFollows.personaId }).from(personaFollows).where(eq(personaFollows.followerId, followerId));
+  return rows.map(r => r.personaId);
+}
+
+export async function getPersonaFollowerCount(personaId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db.select({ count: sql<number>`count(*)` }).from(personaFollows).where(eq(personaFollows.personaId, personaId));
+  return Number(rows[0]?.count ?? 0);
 }
