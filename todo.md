@@ -43,3 +43,22 @@
 - [ ] Create new GitHub repository (asg-nexus)
 - [ ] Push full project code
 - [ ] Write comprehensive README.md with deployment docs
+
+## Localization & Visibility
+- [ ] Translate all frontend UI text to English (Home, Personas, PersonaDetail, Chat, Feed, Graph, AppLayout)
+- [ ] Make GitHub repository public
+- [ ] Update README for English audience
+- [ ] Save checkpoint and push to GitHub
+
+## i18n & Public Release
+- [ ] Create i18n context with language toggle (zh/en)
+- [ ] Create zh and en locale files (full coverage)
+- [ ] Integrate i18n into AppLayout (language switcher button)
+- [ ] Integrate i18n into Home page
+- [ ] Integrate i18n into Personas page
+- [ ] Integrate i18n into PersonaDetail page
+- [ ] Integrate i18n into Chat page
+- [ ] Integrate i18n into Feed page
+- [ ] Integrate i18n into Graph page
+- [ ] Make GitHub repository public
+- [ ] Push i18n changes to GitHub

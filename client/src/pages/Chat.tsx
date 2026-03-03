@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 import { Bot, Lock, MessageCircle, Send, Shield, Sparkles, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -18,8 +19,9 @@ interface Message {
   createdAt: Date;
 }
 
-function ChatBubble({ msg, personaName }: { msg: Message; personaName: string }) {
+function ChatBubble({ msg, personaName, locale }: { msg: Message; personaName: string; locale: string }) {
   const isUser = msg.senderType === "user";
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
   return (
     <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
       <Avatar className="w-8 h-8 shrink-0 mt-1">
@@ -33,7 +35,7 @@ function ChatBubble({ msg, personaName }: { msg: Message; personaName: string })
         </div>
         <div className="text-[10px] text-muted-foreground flex items-center gap-1">
           <Lock className="w-2.5 h-2.5" />
-          E2E 加密 · {new Date(msg.createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+          {locale === "zh" ? "E2E 加密" : "E2E Encrypted"} · {new Date(msg.createdAt).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
         </div>
       </div>
     </div>
@@ -42,6 +44,11 @@ function ChatBubble({ msg, personaName }: { msg: Message; personaName: string })
 
 export default function ChatPage() {
   const { isAuthenticated } = useAuth();
+  const { t, locale } = useI18n();
+  const c = t.chat;
+  const loginPrompt = c.loginTitle;
+  const loginDesc = c.loginDesc;
+  const selectPersona = c.sidebarTitle;
   const [location] = useLocation();
   const personaIdParam = new URLSearchParams(location.split("?")[1] ?? "").get("personaId");
   const personaId = personaIdParam ? parseInt(personaIdParam) : null;
@@ -127,11 +134,11 @@ export default function ChatPage() {
           <Lock className="w-8 h-8 text-[oklch(0.75_0.2_285)]" />
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">登录以使用加密聊天</h2>
-          <p className="text-muted-foreground text-sm mb-6">所有消息均采用 AES-256-GCM 端到端加密</p>
+          <h2 className="text-xl font-semibold mb-2">{loginPrompt}</h2>
+          <p className="text-muted-foreground text-sm mb-6">{loginDesc}</p>
           <Button className="gap-2 bg-gradient-to-r from-[oklch(0.65_0.22_285)] to-[oklch(0.55_0.2_295)] hover:opacity-90 text-white border-0"
             onClick={() => { window.location.href = getLoginUrl(); }}>
-            登录 / 注册
+            {t.common.login}
           </Button>
         </div>
       </div>
@@ -145,7 +152,7 @@ export default function ChatPage() {
         <div className="p-4 border-b border-border">
           <h2 className="font-semibold text-sm flex items-center gap-2">
             <MessageCircle className="w-4 h-4 text-[oklch(0.75_0.2_285)]" />
-            选择对话对象
+            {selectPersona}
           </h2>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
@@ -162,7 +169,7 @@ export default function ChatPage() {
               </Avatar>
               <div className="min-w-0">
                 <div className="text-sm font-medium truncate">{p.name}</div>
-                <div className="text-[10px] text-muted-foreground truncate">{p.bio || "AI 分身"}</div>
+                <div className="text-[10px] text-muted-foreground truncate">{p.bio || (locale === "zh" ? "AI 分身" : "AI Persona")}</div>
               </div>
             </button>
           ))}
@@ -185,14 +192,14 @@ export default function ChatPage() {
                   {selectedPersona.name}
                   <div className="w-2 h-2 rounded-full bg-[oklch(0.7_0.18_155)] animate-pulse" />
                 </div>
-                <div className="text-xs text-muted-foreground">{selectedPersona.bio || "AI 分身"}</div>
+                <div className="text-xs text-muted-foreground">{selectedPersona.bio || (locale === "zh" ? "AI 分身" : "AI Persona")}</div>
               </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge variant="outline" className="text-[10px] border-[oklch(0.7_0.18_155/0.4)] text-[oklch(0.7_0.18_155)] bg-[oklch(0.7_0.18_155/0.1)] gap-1">
-                  <Shield className="w-3 h-3" /> ASG 防护
+                  <Shield className="w-3 h-3" /> {c.asgBadge}
                 </Badge>
                 <Badge variant="outline" className="text-[10px] border-[oklch(0.65_0.22_285/0.4)] text-[oklch(0.75_0.15_285)] bg-[oklch(0.65_0.22_285/0.1)] gap-1">
-                  <Lock className="w-3 h-3" /> E2E 加密
+                  <Lock className="w-3 h-3" /> {c.encryptedBadge}
                 </Badge>
               </div>
             </div>
@@ -205,15 +212,15 @@ export default function ChatPage() {
                     <Sparkles className="w-8 h-8 text-[oklch(0.75_0.2_285)]" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">开始与 {selectedPersona.name} 对话</h3>
-                    <p className="text-sm text-muted-foreground max-w-sm">
-                      所有消息均端到端加密，分身将基于其知识库和记忆为你提供个性化回复。
-                    </p>
+                    <h3 className="font-semibold mb-1">
+                      {c.startConversation} {selectedPersona.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground max-w-sm">{c.startDesc}</p>
                   </div>
                 </div>
               )}
               {localMessages.map((msg) => (
-                <ChatBubble key={msg.id} msg={msg} personaName={selectedPersona.name} />
+                <ChatBubble key={msg.id} msg={msg} personaName={selectedPersona.name} locale={locale} />
               ))}
               {isTyping && (
                 <div className="flex gap-3">
@@ -239,7 +246,7 @@ export default function ChatPage() {
               <div className="flex gap-3 items-end">
                 <div className="flex-1 relative">
                   <Input
-                    placeholder={`给 ${selectedPersona.name} 发消息...`}
+                    placeholder={`${c.inputPlaceholder} ${selectedPersona.name}...`}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
@@ -256,7 +263,7 @@ export default function ChatPage() {
               </div>
               <div className="flex items-center gap-1.5 mt-2 text-[10px] text-muted-foreground">
                 <Lock className="w-3 h-3" />
-                消息已端到端加密 · ASG 安全防护已启用
+                {c.encryptedNote}
               </div>
             </div>
           </>
@@ -266,8 +273,8 @@ export default function ChatPage() {
               <Bot className="w-8 h-8 text-[oklch(0.75_0.2_285)]" />
             </div>
             <div>
-              <h3 className="font-semibold mb-1">选择一个 AI 分身开始对话</h3>
-              <p className="text-sm text-muted-foreground">从左侧列表选择分身，所有消息均端到端加密</p>
+              <h3 className="font-semibold mb-1">{c.selectPrompt}</h3>
+              <p className="text-sm text-muted-foreground">{c.selectDesc}</p>
             </div>
           </div>
         )}

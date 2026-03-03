@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { useI18n } from "@/contexts/I18nContext";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, GitBranch, MessageCircle, Sparkles, User, Zap } from "lucide-react";
@@ -164,7 +165,7 @@ function ForceGraph({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
             {hovered.type === "persona" ? <Bot className="w-4 h-4 text-[oklch(0.75_0.2_285)]" /> : <User className="w-4 h-4 text-[oklch(0.72_0.18_195)]" />}
             {hovered.label}
           </div>
-          <div className="text-xs text-muted-foreground">{hovered.connections} 个连接</div>
+          <div className="text-xs text-muted-foreground">{hovered.connections} connections</div>
         </div>
       )}
     </div>
@@ -172,6 +173,8 @@ function ForceGraph({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) {
 }
 
 export default function GraphPage() {
+  const { t } = useI18n();
+  const g = t.graph;
   const { data: personas } = trpc.graph.allPersonas.useQuery();
   const { data: users } = trpc.graph.allUsers.useQuery();
   const { data: interactions } = trpc.graph.allInteractions.useQuery();
@@ -243,17 +246,17 @@ export default function GraphPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2 mb-1">
           <GitBranch className="w-6 h-6 text-[oklch(0.72_0.18_195)]" />
-          分身社交图谱
+          {g.title}
         </h1>
-        <p className="text-muted-foreground text-sm">可视化展示 AI 分身与用户之间的互动关系网络</p>
+        <p className="text-muted-foreground text-sm">{g.subtitle}</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { icon: Bot, label: "AI 分身", value: totalPersonas, color: "oklch(0.65 0.22 285)" },
-          { icon: User, label: "用户", value: totalUsers, color: "oklch(0.72 0.18 195)" },
-          { icon: Zap, label: "互动记录", value: totalInteractions, color: "oklch(0.78 0.18 75)" },
+          { icon: Bot, label: g.statPersonas, value: totalPersonas, color: "oklch(0.65 0.22 285)" },
+          { icon: User, label: g.statUsers, value: totalUsers, color: "oklch(0.72 0.18 195)" },
+          { icon: Zap, label: g.statInteractions, value: totalInteractions, color: "oklch(0.78 0.18 75)" },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="p-4 rounded-xl border border-border bg-card flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color.replace(")", " / 0.15)")}`, border: `1px solid ${color.replace(")", " / 0.3)")}` }}>
@@ -277,8 +280,8 @@ export default function GraphPage() {
               <GitBranch className="w-7 h-7 text-[oklch(0.72_0.18_195)]" />
             </div>
             <div>
-              <h3 className="font-semibold mb-1">图谱正在构建中</h3>
-              <p className="text-sm text-muted-foreground">创建 AI 分身并开始互动，社交图谱将自动生成</p>
+              <h3 className="font-semibold mb-1">{g.emptyTitle}</h3>
+              <p className="text-sm text-muted-foreground">{g.emptyDesc}</p>
             </div>
           </div>
         )}
@@ -288,19 +291,19 @@ export default function GraphPage() {
       <div className="flex items-center gap-6 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[oklch(0.65_0.22_285)]" />
-          <span>AI 分身节点</span>
+          <span>{g.legendPersona}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[oklch(0.72_0.18_195)]" />
-          <span>用户节点</span>
+          <span>{g.legendUser}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-8 h-0.5 bg-[oklch(0.65_0.22_285/0.4)]" />
-          <span>互动关系（越粗越频繁）</span>
+          <span>{g.legendEdge}</span>
         </div>
         <div className="flex items-center gap-2">
           <Sparkles className="w-3 h-3 text-[oklch(0.75_0.2_285)]" />
-          <span>节点越大表示连接越多</span>
+          <span>{g.legendSize}</span>
         </div>
       </div>
 
@@ -309,7 +312,7 @@ export default function GraphPage() {
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Bot className="w-5 h-5 text-[oklch(0.65_0.22_285)]" />
-            活跃分身排行
+            {g.activePersonasTitle}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[...personas].sort((a, b) => (b.memoryCount ?? 0) - (a.memoryCount ?? 0)).slice(0, 6).map((p) => (
@@ -322,9 +325,9 @@ export default function GraphPage() {
                 <div className="min-w-0">
                   <div className="text-sm font-medium truncate">{p.name}</div>
                   <div className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <MessageCircle className="w-2.5 h-2.5" /> {p.memoryCount ?? 0} 记忆
+                    <MessageCircle className="w-2.5 h-2.5" /> {p.memoryCount ?? 0} {g.memoryLabel}
                     <span className="mx-1">·</span>
-                    {Math.round(p.alignmentScore ?? 0)} 分
+                    {Math.round(p.alignmentScore ?? 0)} pts
                   </div>
                 </div>
               </div>
